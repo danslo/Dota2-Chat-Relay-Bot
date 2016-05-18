@@ -5,11 +5,12 @@ A very basic Dota 2 chat relay bot using [node-dota2](https://github.com/RJackso
 
 Instructions
 ----------------
-1) Install [node.js](https://nodejs.org/en/download/).
-2) ``npm install``
-3) Modify config/default.json with your credentials and chat channel.
-4) ``node chat.js``
-5) Visit ``http://localhost:3000/`` in your browser.
+
+1. Install [node.js](https://nodejs.org/en/download/).
+2. ``npm install``
+3. Modify config/default.json with your credentials and chat channel.
+4. ``node chat.js``
+5. Visit ``http://localhost:3000/`` in your browser.
 
 License
 ----------
