@@ -1,0 +1,12 @@
+{
+    "steam": {
+      "username": "<username>",
+      "password": "<password>",
+      "two_factor": false
+    },
+    "dota2": {
+      "channel": "PARTY RANKED",
+      "channel_type": 1,
+      "message_format": "[RELAY][%s]: %s"
+    }
+}
