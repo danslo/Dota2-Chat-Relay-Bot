@@ -7,56 +7,60 @@ var steam = require('steam'),
   config = require('config'),
   util = require('util');
 
-module.exports = function(io) {
-  this.connect = function(two_factor_code) {
-    steamClient.connect();
-    steamClient.on('connected', function() {
-      this.onConnect(two_factor_code);
-    }.bind(this));
-    steamClient.on('logOnResponse', this.onLogon);
-    steamClient.on('error', this.onError);
-  }
+var DotaBot = function(io) {
+  this.io = io;
+}
 
-  this.onError = function(err) {
-    console.log(err);
-  }
+DotaBot.prototype.connect = function(two_factor_code) {
+  steamClient.connect();
+  steamClient.on('connected', function() {
+    this.onConnect(two_factor_code);
+  }.bind(this));
+  steamClient.on('logOnResponse', this.onLogon);
+  steamClient.on('error', this.onError);
+}
 
-  this.onLogon = function(resp) {
-    if (resp.eresult == steam.EResult.OK) {
-      dotaClient.launch();
-      dotaClient.on('ready', function() {
-        dotaClient.joinChat(config.dota2.channel, config.dota2.channel_type);
-      });
-      dotaClient.on('chatMessage', function(channel, person, message) {
-        io.emit('message', { person: person, message: message });
-      });
-      dotaClient.on('chatJoin', function(channel, person, steamId, obj) {
-        console.log(person);
-      });
-    }
-  }
+DotaBot.prototype.onError = function(err) {
+  console.log(err);
+}
 
- this.onConnect = function(two_factor_code) {
-    steamUser.logOn({
-      account_name: config.steam.username,
-      password: config.steam.password,
-      two_factor_code: two_factor_code
+DotaBot.prototype.onLogon = function(resp) {
+  if (resp.eresult == steam.EResult.OK) {
+    dotaClient.launch();
+    dotaClient.on('ready', function() {
+      dotaClient.joinChat(config.dota2.channel, config.dota2.channel_type);
+    });
+    dotaClient.on('chatMessage', function(channel, person, message) {
+      io.emit('message', { person: person, message: message });
+    });
+    dotaClient.on('chatJoin', function(channel, person, steamId, obj) {
+      console.log(person);
     });
   }
+}
 
-  this.sendMessage = function(person, msg) {
-    var message = util.format(config.dota2.message_format, person, msg);
-    dotaClient.sendMessage(config.dota2.channel, message);
-  }
+DotaBot.prototype.onConnect = function(two_factor_code) {
+  steamUser.logOn({
+    account_name: config.steam.username,
+    password: config.steam.password,
+    two_factor_code: two_factor_code
+  });
+}
 
-  this.start = function() {
-    if (config.steam.two_factor) {
-      prompt.start();
-      prompt.get(['two_factor_code'], function(err, result) {
-        this.connect(result.two_factor_code);
-      }.bind(this));
-    } else {
-      this.connect(null);
-    }
+DotaBot.prototype.sendMessage = function(person, msg) {
+  var message = util.format(config.dota2.message_format, person, msg);
+  dotaClient.sendMessage(config.dota2.channel, message);
+}
+
+DotaBot.prototype.start = function() {
+  if (config.steam.two_factor) {
+    prompt.start();
+    prompt.get(['two_factor_code'], function(err, result) {
+      this.connect(result.two_factor_code);
+    }.bind(this));
+  } else {
+    this.connect(null);
   }
 }
+
+module.exports = DotaBot;
